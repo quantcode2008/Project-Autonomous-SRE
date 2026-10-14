@@ -46,9 +46,11 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
 
 /**
  * Role-Based Access Control Guard
- * Requires the user to hold a specific role (e.g. 'ADMIN').
+ * Requires the user to hold one of the specified roles (e.g. 'ADMIN' or ['ADMIN', 'USER']).
  */
-export function requireRole(requiredRole: 'USER' | 'ADMIN') {
+export function requireRole(roles: ('USER' | 'ADMIN') | ('USER' | 'ADMIN')[]) {
+  const allowedRoles = Array.isArray(roles) ? roles : [roles]
+
   return (req: Request, res: Response, next: NextFunction): void => {
     if (!req.user) {
       res.status(401).json({
@@ -58,11 +60,11 @@ export function requireRole(requiredRole: 'USER' | 'ADMIN') {
       return
     }
 
-    const userRole = (req.user as { role?: string }).role || 'USER'
+    const userRole = ((req.user as { role?: string }).role || 'USER') as 'USER' | 'ADMIN'
 
-    if (userRole !== requiredRole) {
+    if (!allowedRoles.includes(userRole)) {
       res.status(403).json({
-        error: `Forbidden: Requires ${requiredRole} role`,
+        error: `Forbidden: Requires ${allowedRoles.join(' or ')} role`,
         code: 'FORBIDDEN',
       })
       return

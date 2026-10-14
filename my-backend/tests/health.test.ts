@@ -34,7 +34,11 @@ describe('Health & Operational Endpoints', () => {
       endpoints: {
         health: '/health',
         auth: '/api/auth',
-        v1: '/api/v1',
+        v1: {
+          me: '/api/v1/me',
+          waitlist: '/api/v1/waitlist',
+          items: '/api/v1/items',
+        },
       },
     })
   })

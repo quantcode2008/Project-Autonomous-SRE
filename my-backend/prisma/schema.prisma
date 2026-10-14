@@ -83,3 +83,15 @@ model Item {
   @@index([userId, createdAt])
   @@map("item")
 }
+
+// Waitlist / Early access submission model
+model WaitlistEntry {
+  id             String   @id @default(cuid())
+  email          String   @unique
+  role           String   @default("developer")
+  confirmationId String   @unique
+  createdAt      DateTime @default(now())
+
+  @@index([createdAt])
+  @@map("waitlist_entry")
+}

@@ -10,6 +10,8 @@ import { errorHandler } from './middleware/error-handler'
 import { notFoundHandler } from './middleware/not-found'
 import { healthRouter } from './modules/health/health.router'
 import { userRouter } from './modules/user/user.router'
+import { waitlistRouter } from './modules/waitlist/waitlist.router'
+import { itemRouter } from './modules/items/item.router'
 
 export function createApp(): Express {
   const app = express()
@@ -66,7 +68,11 @@ export function createApp(): Express {
       endpoints: {
         health: '/health',
         auth: '/api/auth',
-        v1: '/api/v1',
+        v1: {
+          me: '/api/v1/me',
+          waitlist: '/api/v1/waitlist',
+          items: '/api/v1/items',
+        },
       },
     })
   })
@@ -74,6 +80,8 @@ export function createApp(): Express {
   app.use('/health', healthRouter)
   app.use('/api/health', healthRouter)
   app.use('/api/v1', apiRateLimiter, userRouter)
+  app.use('/api/v1/waitlist', waitlistRouter)
+  app.use('/api/v1/items', itemRouter)
 
   // 7. 404 & Centralized Error Handling
   app.use(notFoundHandler)
