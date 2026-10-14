@@ -46,6 +46,19 @@ export function createApp(): Express {
   app.use('/api/auth', authRateLimiter, toNodeHandler(auth))
 
   // 6. Application Routes
+  app.get('/', (_req: Request, res: Response) => {
+    res.json({
+      name: 'SentinelAI Backend API',
+      status: 'online',
+      version: '1.0.0',
+      endpoints: {
+        health: '/health',
+        auth: '/api/auth',
+        v1: '/api/v1',
+      },
+    })
+  })
+
   app.use('/health', healthRouter)
   app.use('/api/health', healthRouter)
   app.use('/api/v1', apiRateLimiter, userRouter)

@@ -23,6 +23,22 @@ describe('Health & Operational Endpoints', () => {
     })
   })
 
+  it('GET / returns 200 with service info and available endpoints', async () => {
+    const response = await request(app).get('/')
+
+    expect(response.status).toBe(200)
+    expect(response.body).toEqual({
+      name: 'SentinelAI Backend API',
+      status: 'online',
+      version: '1.0.0',
+      endpoints: {
+        health: '/health',
+        auth: '/api/auth',
+        v1: '/api/v1',
+      },
+    })
+  })
+
   it('GET /health returns 503 and degraded status when database is disconnected', async () => {
     // Mock disconnected DB ping
     vi.spyOn(databaseConfig, 'checkDatabaseConnection').mockResolvedValueOnce({
