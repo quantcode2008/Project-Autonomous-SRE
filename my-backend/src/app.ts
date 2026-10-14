@@ -43,6 +43,18 @@ export function createApp(): Express {
   })
 
   // 5. Mount Better Auth endpoints with auth rate limiter
+  app.get('/api/auth', (_req: Request, res: Response) => {
+    res.json({
+      name: 'Better Auth Gateway',
+      status: 'active',
+      endpoints: {
+        signUp: 'POST /api/auth/sign-up/email',
+        signIn: 'POST /api/auth/sign-in/email',
+        signOut: 'POST /api/auth/sign-out',
+        session: 'GET /api/auth/get-session',
+      },
+    })
+  })
   app.use('/api/auth', authRateLimiter, toNodeHandler(auth))
 
   // 6. Application Routes

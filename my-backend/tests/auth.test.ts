@@ -143,6 +143,22 @@ describe('Authentication & Session Guard (Phase 2)', () => {
   })
 
   describe('Better Auth Endpoint Behavior & Mail Service', () => {
+    it('GET /api/auth returns 200 with directory of auth endpoints', async () => {
+      const response = await request(app).get('/api/auth')
+
+      expect(response.status).toBe(200)
+      expect(response.body).toEqual({
+        name: 'Better Auth Gateway',
+        status: 'active',
+        endpoints: {
+          signUp: 'POST /api/auth/sign-up/email',
+          signIn: 'POST /api/auth/sign-in/email',
+          signOut: 'POST /api/auth/sign-out',
+          session: 'GET /api/auth/get-session',
+        },
+      })
+    })
+
     it('handles wrong password rejection cleanly', async () => {
       // Simulate Better Auth rejecting credentials
       vi.spyOn(auth.api, 'signInEmail').mockRejectedValueOnce(
