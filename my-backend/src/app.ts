@@ -22,7 +22,7 @@ export function createApp(): Express {
   // 2. Strict CORS - allowing only frontend origin with credentials
   app.use(
     cors({
-      origin: env.CORS_ORIGIN,
+      origin: [env.CORS_ORIGIN, 'http://localhost:3000', 'http://127.0.0.1:3000'],
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Cookie'],
