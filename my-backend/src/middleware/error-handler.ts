@@ -53,7 +53,24 @@ export function errorHandler(
     return
   }
 
-  // 4. Unexpected server error
+  // 4. Database connection failure
+  if (
+    err.name === 'PrismaClientInitializationError' ||
+    err.message?.includes("Can't reach database server")
+  ) {
+    logger.error('Database connection unavailable', {
+      message: err.message,
+      url: req.originalUrl,
+      method: req.method,
+    })
+    res.status(503).json({
+      error: 'Database service is temporarily unavailable. Please verify PostgreSQL is running.',
+      code: 'DATABASE_UNAVAILABLE',
+    })
+    return
+  }
+
+  // 5. Unexpected server error
   logger.error('Unhandled internal server error', {
     message: err.message,
     stack: err.stack,

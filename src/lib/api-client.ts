@@ -36,14 +36,23 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
     }
   }
 
-  const res = await fetch(url, {
-    credentials: 'include', // Ensures HTTP-only session cookies are sent & received
-    headers: {
-      'Content-Type': 'application/json',
-      ...headers,
-    },
-    ...rest,
-  })
+  let res: Response
+  try {
+    res = await fetch(url, {
+      credentials: 'include', // Ensures HTTP-only session cookies are sent & received
+      headers: {
+        'Content-Type': 'application/json',
+        ...headers,
+      },
+      ...rest,
+    })
+  } catch (networkError: unknown) {
+    throw new ApiError(
+      503,
+      `Cannot connect to backend server at ${API_BASE_URL}. Please ensure the backend is running (npm run dev in my-backend).`,
+      'BACKEND_OFFLINE'
+    )
+  }
 
   let data: any
   try {
@@ -53,7 +62,14 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
   }
 
   if (!res.ok) {
-    const errorMessage = data?.error || data?.message || `Request failed with status ${res.status}`
+    let errorMessage = data?.error || data?.message
+    if (!errorMessage) {
+      if (res.status === 503) {
+        errorMessage = 'Backend service or database is currently unavailable. Please verify Docker PostgreSQL and the backend server are running.'
+      } else {
+        errorMessage = `Request failed with status ${res.status}`
+      }
+    }
     throw new ApiError(res.status, errorMessage, data?.code, data?.details)
   }
 
