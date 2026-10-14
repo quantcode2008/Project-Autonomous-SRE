@@ -4,6 +4,7 @@ import { useState, useRef } from 'react'
 import { motion } from 'framer-motion'
 import confetti from 'canvas-confetti'
 import { Button } from '@/components/core/Button'
+import { apiClient } from '@/lib/api-client'
 
 export function EmailForm({ ctaText = 'Get early access' }: { ctaText?: string }) {
   const [email, setEmail] = useState('')
@@ -53,17 +54,10 @@ export function EmailForm({ ctaText = 'Get early access' }: { ctaText?: string }
     setIsSubmitting(true)
 
     try {
-      const res = await fetch('/api/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      })
-
-      const data = await res.json()
-
-      if (!res.ok) {
-        throw new Error(data.error || 'Unable to submit email. Please try again.')
-      }
+      const data = await apiClient.post<{ success: boolean; message: string; confirmationId: string }>(
+        '/api/v1/waitlist',
+        { email }
+      )
 
       setConfirmationMessage(data.message || "You're on the list. We'll be in touch.")
       setSubmitted(true)

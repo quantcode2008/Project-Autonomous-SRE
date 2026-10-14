@@ -5,10 +5,15 @@ import { motion, useScroll, useMotionValueEvent, useReducedMotion } from 'framer
 import { Container } from '@/components/core/Container'
 import { Button } from '@/components/core/Button'
 import { NAV_LINKS } from '@/lib/constants'
+import { useSession, signOut } from '@/lib/auth-client'
+import { AuthModal } from '@/components/interactive/AuthModal'
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [authModalOpen, setAuthModalOpen] = useState(false)
+  const { data: sessionData } = useSession()
+  const user = sessionData?.user
   const { scrollY } = useScroll()
   const reduce = useReducedMotion()
 
@@ -75,9 +80,33 @@ export function Header() {
             >
               Watch demo
             </a>
-            <Button size="sm" onClick={() => document.getElementById('hero-email')?.focus()}>
-              Get early access
-            </Button>
+            {user ? (
+              <div className="flex items-center gap-3">
+                <span className="text-xs text-frost bg-navy-light/90 border border-ice/20 px-3 py-1.5 rounded-full font-medium">
+                  {user.name || user.email}
+                </span>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => signOut()}
+                >
+                  Sign Out
+                </Button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setAuthModalOpen(true)}
+                  className="text-sm text-frost hover:text-offwhite transition-colors font-medium px-2 py-1"
+                >
+                  Sign In
+                </button>
+                <Button size="sm" onClick={() => document.getElementById('hero-email')?.focus()}>
+                  Get early access
+                </Button>
+              </div>
+            )}
           </div>
 
           {/* Mobile hamburger */}
@@ -115,12 +144,31 @@ export function Header() {
                 {link.label}
               </motion.a>
             ))}
+            {user ? (
+              <div className="flex flex-col items-center gap-3">
+                <span className="text-sm text-frost font-medium">{user.name || user.email}</span>
+                <Button size="sm" variant="ghost" onClick={() => { setMobileOpen(false); signOut() }}>
+                  Sign Out
+                </Button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => { setMobileOpen(false); setAuthModalOpen(true) }}
+                className="text-lg text-frost hover:text-offwhite font-medium"
+              >
+                Sign In
+              </button>
+            )}
             <Button onClick={() => { setMobileOpen(false); document.getElementById('hero-email')?.focus() }}>
               Get early access
             </Button>
           </div>
         </motion.div>
       )}
+
+      {/* Auth Modal */}
+      <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
     </motion.header>
   )
 }

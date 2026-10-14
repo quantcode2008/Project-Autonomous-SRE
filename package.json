@@ -12,6 +12,7 @@
     "@types/node": "^26.6.5",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "better-auth": "^1.7.7",
     "canvas-confetti": "^1.9.4",
     "framer-motion": "^14.1.0",
     "gsap": "^3.15.0",

@@ -25,18 +25,23 @@ export async function POST(request: Request) {
       )
     }
 
-    // In a production deployment, persist to Supabase, Postgres, Loops, or Resend
-    // For now, securely simulate successful queuing of early access
-    const confirmationId = `stn_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 7)}`
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+    const backendRes = await fetch(`${apiUrl}/api/v1/waitlist`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, role: body.role || 'developer' }),
+    })
 
-    return NextResponse.json(
-      {
-        success: true,
-        message: "You're on the early access priority list. We'll be in touch with onboarding credentials.",
-        confirmationId,
-      },
-      { status: 200 }
-    )
+    const data = await backendRes.json()
+
+    if (!backendRes.ok) {
+      return NextResponse.json(
+        { error: data.error || 'Failed to register with waitlist service.' },
+        { status: backendRes.status }
+      )
+    }
+
+    return NextResponse.json(data, { status: backendRes.status })
   } catch {
     return NextResponse.json(
       { error: 'Malformed request or server error. Please try again.' },
