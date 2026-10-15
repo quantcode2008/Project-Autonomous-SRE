@@ -6,7 +6,7 @@ import { motion, useMotionValue, useTransform, useReducedMotion } from 'framer-m
 interface ButtonProps {
   children: ReactNode
   variant?: 'primary' | 'ghost'
-  size?: 'default' | 'sm'
+  size?: 'default' | 'sm' | 'md' | 'lg'
   className?: string
   onClick?: () => void
   type?: 'button' | 'submit'
@@ -51,6 +51,8 @@ export function Button({
 
   const sizeStyles = size === 'sm'
     ? 'px-5 py-2.5 text-sm'
+    : size === 'lg'
+    ? 'px-8 py-4 text-base'
     : 'px-7 py-3.5 text-base'
 
   const variantStyles = variant === 'primary'

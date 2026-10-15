@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { ROLES } from '@/lib/constants'
 import { Button } from '@/components/core/Button'
-import { EmailForm } from './EmailForm'
+import Link from 'next/link'
 
 export function RoleSwitcher() {
   const reduce = useReducedMotion()
@@ -82,8 +82,12 @@ export function RoleSwitcher() {
               </li>
             ))}
           </ul>
-          <div className="max-w-md">
-            <EmailForm ctaText={current.cta} />
+          <div>
+            <Link href={`/register?role=${current.id}`}>
+              <Button variant="primary" size="md">
+                {current.cta}
+              </Button>
+            </Link>
           </div>
         </motion.div>
       </AnimatePresence>

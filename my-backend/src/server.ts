@@ -2,10 +2,12 @@ import { app } from './app'
 import { env } from './config/env'
 import { logger } from './lib/logger'
 import { prisma } from './config/database'
+import { ensureAdminUser } from './config/seed-admin'
 
-const server = app.listen(env.PORT, () => {
+const server = app.listen(env.PORT, async () => {
   logger.info(`Server started on http://localhost:${env.PORT} [${env.NODE_ENV}]`)
   logger.info(`Health check available at http://localhost:${env.PORT}/health`)
+  await ensureAdminUser()
 })
 
 async function gracefulShutdown(signal: string) {

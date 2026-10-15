@@ -1,4 +1,5 @@
 import { betterAuth } from 'better-auth'
+import { APIError } from 'better-auth/api'
 import { prismaAdapter } from 'better-auth/adapters/prisma'
 import { prisma } from '../config/database'
 import { env } from '../config/env'
@@ -37,6 +38,39 @@ export const auth = betterAuth({
         type: 'string',
         defaultValue: 'USER',
         input: false, // Disallow arbitrary client input setting admin role
+      },
+      isApproved: {
+        type: 'boolean',
+        defaultValue: false,
+        input: false,
+      },
+    },
+  },
+  databaseHooks: {
+    session: {
+      create: {
+        before: async (session) => {
+          const user = await prisma.user.findUnique({
+            where: { id: session.userId },
+          })
+          if (!user) return
+
+          // Admins always have access
+          if (user.role === 'ADMIN') return
+
+          if (!user.emailVerified) {
+            throw new APIError('FORBIDDEN', {
+              message: 'Please verify your email address with the OTP before signing in.',
+            })
+          }
+
+          if (!user.isApproved) {
+            throw new APIError('FORBIDDEN', {
+              message:
+                'Your registration is awaiting administrator approval. You will be able to sign in once approved.',
+            })
+          }
+        },
       },
     },
   },

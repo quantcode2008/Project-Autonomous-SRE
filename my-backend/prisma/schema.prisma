@@ -16,10 +16,12 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   role          String    @default("USER")
+  isApproved    Boolean   @default(false)
   sessions      Session[]
   accounts      Account[]
   items         Item[]
 
+  @@index([isApproved])
   @@map("user")
 }
 

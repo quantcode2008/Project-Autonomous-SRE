@@ -12,6 +12,8 @@ import { healthRouter } from './modules/health/health.router'
 import { userRouter } from './modules/user/user.router'
 import { waitlistRouter } from './modules/waitlist/waitlist.router'
 import { itemRouter } from './modules/items/item.router'
+import { registrationRouter } from './modules/registration/registration.router'
+import { adminRouter } from './modules/admin/admin.router'
 
 export function createApp(): Express {
   const app = express()
@@ -82,6 +84,8 @@ export function createApp(): Express {
   app.use('/api/v1', apiRateLimiter, userRouter)
   app.use('/api/v1/waitlist', waitlistRouter)
   app.use('/api/v1/items', itemRouter)
+  app.use('/api/v1/auth/register', registrationRouter)
+  app.use('/api/v1/admin', adminRouter)
 
   // 7. 404 & Centralized Error Handling
   app.use(notFoundHandler)

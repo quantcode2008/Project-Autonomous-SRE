@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion, useScroll, useMotionValueEvent, useReducedMotion } from 'framer-motion'
+import Link from 'next/link'
 import { Container } from '@/components/core/Container'
 import { Button } from '@/components/core/Button'
 import { NAV_LINKS } from '@/lib/constants'
@@ -82,6 +83,14 @@ export function Header() {
             </a>
             {user ? (
               <div className="flex items-center gap-3">
+                {((user as any).role === 'ADMIN' || user.email === 'mirajmisba1@gmail.com') && (
+                  <Link
+                    href="/admin"
+                    className="text-xs font-semibold text-amber bg-amber/10 border border-amber/30 px-3 py-1.5 rounded-full hover:bg-amber/20 transition-colors"
+                  >
+                    Admin Console
+                  </Link>
+                )}
                 <span className="text-xs text-frost bg-navy-light/90 border border-ice/20 px-3 py-1.5 rounded-full font-medium">
                   {user.name || user.email}
                 </span>
@@ -95,16 +104,17 @@ export function Header() {
               </div>
             ) : (
               <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => setAuthModalOpen(true)}
+                <Link
+                  href="/signin"
                   className="text-sm text-frost hover:text-offwhite transition-colors font-medium px-2 py-1"
                 >
                   Sign In
-                </button>
-                <Button size="sm" onClick={() => document.getElementById('hero-email')?.focus()}>
-                  Get early access
-                </Button>
+                </Link>
+                <Link href="/register">
+                  <Button size="sm">
+                    Get early access
+                  </Button>
+                </Link>
               </div>
             )}
           </div>
@@ -146,23 +156,40 @@ export function Header() {
             ))}
             {user ? (
               <div className="flex flex-col items-center gap-3">
+                {((user as any).role === 'ADMIN' || user.email === 'mirajmisba1@gmail.com') && (
+                  <Link
+                    href="/admin"
+                    onClick={() => setMobileOpen(false)}
+                    className="text-base font-semibold text-amber bg-amber/10 border border-amber/30 px-4 py-2 rounded-full"
+                  >
+                    Admin Console
+                  </Link>
+                )}
                 <span className="text-sm text-frost font-medium">{user.name || user.email}</span>
                 <Button size="sm" variant="ghost" onClick={() => { setMobileOpen(false); signOut() }}>
                   Sign Out
                 </Button>
               </div>
             ) : (
-              <button
-                type="button"
-                onClick={() => { setMobileOpen(false); setAuthModalOpen(true) }}
-                className="text-lg text-frost hover:text-offwhite font-medium"
-              >
-                Sign In
-              </button>
+              <div className="flex flex-col items-center gap-4 w-full max-w-xs px-6">
+                <Link
+                  href="/signin"
+                  onClick={() => setMobileOpen(false)}
+                  className="text-lg text-frost hover:text-offwhite font-medium"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href="/register"
+                  onClick={() => setMobileOpen(false)}
+                  className="w-full"
+                >
+                  <Button size="lg" className="w-full">
+                    Get early access
+                  </Button>
+                </Link>
+              </div>
             )}
-            <Button onClick={() => { setMobileOpen(false); document.getElementById('hero-email')?.focus() }}>
-              Get early access
-            </Button>
           </div>
         </motion.div>
       )}

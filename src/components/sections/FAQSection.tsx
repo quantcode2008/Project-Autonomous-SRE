@@ -1,7 +1,8 @@
 import { Section } from '@/components/core/Section'
 import { Reveal } from '@/components/core/Reveal'
 import { FAQ } from '@/components/interactive/FAQ'
-import { EmailForm } from '@/components/interactive/EmailForm'
+import Link from 'next/link'
+import { Button } from '@/components/core/Button'
 import { FAQ_ITEMS } from '@/lib/constants'
 
 export function FAQSection() {
@@ -18,8 +19,12 @@ export function FAQSection() {
             <p className="text-body text-frost mb-8 max-w-md">
               If your question isn&apos;t here, reach out. We respond to every message.
             </p>
-            <div className="max-w-md">
-              <EmailForm ctaText="Get early access" />
+            <div>
+              <Link href="/register">
+                <Button variant="primary" size="md">
+                  Get early access
+                </Button>
+              </Link>
             </div>
           </div>
         </Reveal>

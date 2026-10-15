@@ -2,7 +2,8 @@
 
 import { useRef, useEffect } from 'react'
 import { gsap } from 'gsap'
-import { EmailForm } from '@/components/interactive/EmailForm'
+import Link from 'next/link'
+import { Button } from '@/components/core/Button'
 
 export function HeroContent() {
   const headlineRef = useRef<HTMLHeadingElement>(null)
@@ -55,13 +56,24 @@ export function HeroContent() {
         SentinelAI detects, investigates, reproduces, fixes, and prevents production bugs — so your team ships features, not hotfixes.
       </p>
 
-      <div ref={ctaRef} className="flex flex-col gap-4">
-        <div className="max-w-md" id="hero-email">
-          <EmailForm />
-        </div>
+      <div ref={ctaRef} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+        <Link href="/register">
+          <Button variant="primary" size="lg" className="w-full sm:w-auto shadow-lg shadow-amber/20 group">
+            <span>Get early access</span>
+            <svg
+              className="w-4 h-4 ml-2 inline-block group-hover:translate-x-1 transition-transform"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              aria-hidden="true"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
+          </Button>
+        </Link>
         <a
           href="#demo"
-          className="inline-flex items-center gap-2 text-sm text-frost hover:text-offwhite transition-colors font-body group w-fit"
+          className="inline-flex items-center gap-2 text-sm text-frost hover:text-offwhite transition-colors font-body group w-fit px-3 py-2"
         >
           <svg className="w-4 h-4 text-amber" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
             <path d="M8 0a8 8 0 100 16A8 8 0 008 0zm3.707 8.707l-4 4a1 1 0 01-1.414-1.414L9.586 8 6.293 4.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414z" />
