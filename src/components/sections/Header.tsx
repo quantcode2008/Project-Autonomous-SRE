@@ -10,6 +10,7 @@ import { useSession, signOut } from '@/lib/auth-client'
 import { AuthModal } from '@/components/interactive/AuthModal'
 
 export function Header() {
+  const [mounted, setMounted] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [authModalOpen, setAuthModalOpen] = useState(false)
@@ -17,6 +18,10 @@ export function Header() {
   const user = sessionData?.user
   const { scrollY } = useScroll()
   const reduce = useReducedMotion()
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useMotionValueEvent(scrollY, 'change', (latest) => {
     setScrolled(latest > 100)
@@ -74,14 +79,14 @@ export function Header() {
           </div>
 
           {/* Desktop CTA */}
-          <div className="hidden lg:flex items-center gap-4">
+          <div className="hidden lg:flex items-center gap-4" suppressHydrationWarning>
             <a
               href="#demo"
               className="text-sm text-frost hover:text-offwhite transition-colors font-body"
             >
               Watch demo
             </a>
-            {user ? (
+            {mounted && user ? (
               <div className="flex items-center gap-3">
                 {((user as any).role === 'ADMIN' || user.email === 'mirajmisba1@gmail.com') && (
                   <Link
@@ -154,42 +159,44 @@ export function Header() {
                 {link.label}
               </motion.a>
             ))}
-            {user ? (
-              <div className="flex flex-col items-center gap-3">
-                {((user as any).role === 'ADMIN' || user.email === 'mirajmisba1@gmail.com') && (
-                  <Link
-                    href="/admin"
-                    onClick={() => setMobileOpen(false)}
-                    className="text-base font-semibold text-amber bg-amber/10 border border-amber/30 px-4 py-2 rounded-full"
-                  >
-                    Admin Console
-                  </Link>
-                )}
-                <span className="text-sm text-frost font-medium">{user.name || user.email}</span>
-                <Button size="sm" variant="ghost" onClick={() => { setMobileOpen(false); signOut() }}>
-                  Sign Out
-                </Button>
-              </div>
-            ) : (
-              <div className="flex flex-col items-center gap-4 w-full max-w-xs px-6">
-                <Link
-                  href="/signin"
-                  onClick={() => setMobileOpen(false)}
-                  className="text-lg text-frost hover:text-offwhite font-medium"
-                >
-                  Sign In
-                </Link>
-                <Link
-                  href="/register"
-                  onClick={() => setMobileOpen(false)}
-                  className="w-full"
-                >
-                  <Button size="lg" className="w-full">
-                    Get early access
+            <div className="w-full flex justify-center" suppressHydrationWarning>
+              {mounted && user ? (
+                <div className="flex flex-col items-center gap-3">
+                  {((user as any).role === 'ADMIN' || user.email === 'mirajmisba1@gmail.com') && (
+                    <Link
+                      href="/admin"
+                      onClick={() => setMobileOpen(false)}
+                      className="text-base font-semibold text-amber bg-amber/10 border border-amber/30 px-4 py-2 rounded-full"
+                    >
+                      Admin Console
+                    </Link>
+                  )}
+                  <span className="text-sm text-frost font-medium">{user.name || user.email}</span>
+                  <Button size="sm" variant="ghost" onClick={() => { setMobileOpen(false); signOut() }}>
+                    Sign Out
                   </Button>
-                </Link>
-              </div>
-            )}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center gap-4 w-full max-w-xs px-6">
+                  <Link
+                    href="/signin"
+                    onClick={() => setMobileOpen(false)}
+                    className="text-lg text-frost hover:text-offwhite font-medium"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    href="/register"
+                    onClick={() => setMobileOpen(false)}
+                    className="w-full"
+                  >
+                    <Button size="lg" className="w-full">
+                      Get early access
+                    </Button>
+                  </Link>
+                </div>
+              )}
+            </div>
           </div>
         </motion.div>
       )}
