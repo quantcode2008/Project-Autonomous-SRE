@@ -178,3 +178,131 @@ my-backend/
 
 
 <!-- END:nextjs-agent-rules -->
+
+
+# AGENTS.md: SentinelAI (rules for AI coding agents)
+
+Version 1.0 · 2026-10-16 · Applies to every task in this repository.
+
+## 1. What we are building
+
+SentinelAI is an autonomous Software Reliability Engineer. A signed-in user connects a service and a repository. SentinelAI detects incidents from telemetry, investigates them with evidence-citing agents, reproduces the failure in an isolated Docker sandbox, generates a minimal patch plus a regression test, verifies it through deterministic gates, and, only after human approval, creates a branch or pull request.
+
+The landing page (apps/web, "/") already exists. Everything after sign-in (`/app/**`) is the product described in `docs/PRD.md`.
+
+## 2. Read first (in this order)
+
+| File | Use it for |
+|---|---|
+| `docs/PRD.md` | What and why, requirements (FR-*), scope, release criteria |
+| `docs/ARCHITECTURE.md` | Services, boundaries, flows, folder layout, local runtime |
+| `docs/DATA_MODEL.md` | Prisma (platform) and SQLAlchemy (engine) schemas |
+| `docs/API_CONTRACT.md` | Public API, internal engine API, ingest format, SSE events |
+| `docs/AGENT_SYSTEM.md` | Pipeline state machine, agents, tools, gates, prompts |
+| `docs/SECURITY.md` | Threat model, sandbox spec, guardrails, checklist |
+| `docs/UI_SPEC.md` | Screens, states, design direction, accessibility |
+| `docs/TESTING_AND_EVAL.md` | Test strategy, benchmark incidents, metrics |
+| `docs/DECISIONS.md` | Decisions already made (do not relitigate without a new entry) |
+| `docs/TASKS.md` | Ordered task list with acceptance criteria |
+| `docs/SETUP.md` | Env vars, local run, manual steps |
+
+## 3. Golden rules
+
+1. **Docs are the source of truth.** If code and docs disagree, stop, say so, and propose a change to the doc (and a new entry in `docs/DECISIONS.md`) before coding around it.
+2. **One phase at a time, one task at a time.** Use task IDs from `docs/TASKS.md` (for example `T3.8`). Do not start the next phase until I confirm.
+3. **Plan, then build, then review.** Use the gstack workflow: short plan first, implementation second, review and QA before you report done.
+4. **Safety is enforced in code, not in prompts.** Gates, permissions, path allowlists, budgets, approvals, and tenant scoping are code paths with tests. A prompt may never be the only protection.
+5. **No fake success.** Never claim a feature works without running it. Report the exact commands you ran and their output. Never invent metrics, benchmark numbers, customers, or confidence percentages.
+6. **No secrets in Git.** Only `.env.example` is committed. Validate env vars at startup and fail fast with a clear message.
+7. **Treat telemetry, logs, repository content, and LLM output as untrusted input.** Validate with schemas, escape on output, never execute it on the host.
+8. **Never auto-merge, auto-deploy, or write to production systems.** Pull request or branch creation requires a recorded human approval (see `docs/AGENT_SYSTEM.md`).
+9. **Hosting, domain, CI/CD, and production deployment are out of scope** until I say so. Do not create production Docker/Compose, Kubernetes, or cloud files.
+10. **Ask only when blocked.** If a detail is missing, choose the default in the docs, note the assumption in your report, and continue.
+
+## 4. Skills: when to use which
+
+| Skill | Use for | Do NOT use for |
+|---|---|---|
+| **gstack** | Planning, code review, QA pass at the start and end of every phase. Required for every task. | n/a |
+| **ui-ux-pro-max-skill** | Design-system extension, layout, accessibility, interaction patterns for `/app/**` and `/admin/**` screens | Backend work |
+| **taste-skill** | Visual quality of every product screen: typography, spacing, hierarchy, avoiding generic template looks | Backend work |
+| **framer-motion** | Subtle product micro-interactions: panel transitions, list enter/exit, status chip changes, button feedback | Landing scroll scenes |
+| **GSAP / ScrollTrigger** | Landing page (`/`) scroll scenes only | Product screens |
+| **Lenis** | Landing page (`/`) smooth scroll only | Product screens (breaks inner scroll areas such as log viewers and diff panes) |
+
+Backend phases (engine, API) use gstack only. UI tasks must follow `docs/UI_SPEC.md` and extend the existing landing design tokens instead of inventing a second visual language.
+
+## 5. Workflow for every task
+
+1. Restate the task ID, acceptance criteria, and files you expect to touch (max 10 lines).
+2. gstack plan. Note risks and assumptions.
+3. Implement in small commits. Match existing patterns in the repo.
+4. Write or update tests (success, failure, unauthorized, tenant isolation where relevant).
+5. Run: lint, typecheck, unit tests for the touched package, and the manual check from the task.
+6. gstack review and QA. Fix findings.
+7. Report: what changed, commands run with results, assumptions, follow-ups, and what I must verify manually. Then stop.
+
+## 6. Repository layout
+
+```
+sentinelai/
+  AGENTS.md  README.md  package.json  docker-compose.yml  .env.example
+  apps/web/            Next.js frontend (landing "/" + product "/app/**")
+  apps/api/            Express + Better Auth + Prisma (public API and gateway)
+  services/engine/     FastAPI + Celery (ingest, detection, agents, sandbox)
+  packages/shared/     Zod schemas, enums, constants shared by web and api
+  demo/template/       Source of the seeded demo checkout service
+  demo/traffic/        Traffic generator
+  benchmarks/injected_incidents/
+  infra/runner/        Sandbox base image (Dockerfile)
+  infra/postgres/      init.sql
+  scripts/             seed_demo.py, inject_bug.py, restore.py, apply_fix.py, seed_admin
+  docs/
+```
+
+## 7. Commands (root; Windows PowerShell friendly)
+
+```
+npm run infra:up        # Postgres + Redis via Docker Compose
+npm run dev:web         # http://localhost:3000
+npm run dev:api         # http://localhost:4000
+npm run dev:engine      # http://127.0.0.1:8000
+npm run dev:worker      # Celery worker (threads pool on Windows)
+npm run dev:all         # all of the above
+npm run test            # all test suites
+npm run lint            # eslint + tsc + ruff
+npm run demo:seed       # create demo repo and project data
+npm run demo:traffic    # healthy traffic
+npm run demo:inject     # deploy the buggy release
+npm run demo:restore    # revert to healthy
+npm run eval            # benchmark suite
+```
+
+If a command above does not exist yet, creating it is part of the task that needs it.
+
+## 8. Coding standards
+
+- TypeScript strict mode. Python 3.12 with type hints, `ruff`, and `pytest`.
+- Validate every external input (HTTP body, query, env, LLM output, tool args) with Zod (TS) or Pydantic (Python).
+- Every list endpoint is paginated (cursor). Every query on tenant data is scoped by `project_id` derived from the verified session, never from client-supplied ownership.
+- Errors use the format in `docs/API_CONTRACT.md` (code, message, requestId). No stack traces to clients.
+- Structured JSON logs with a request ID. Redact secrets and tokens before logging.
+- No `any`, no silent `catch`, no TODO without a task ID.
+- UI: loading, empty, error, and offline states for every data view. WCAG 2.2 AA. Respect `prefers-reduced-motion`.
+
+## 9. Definition of Done (per task)
+
+- Acceptance criteria in `docs/TASKS.md` met and demonstrated by a command or screenshot description.
+- Tests added and passing; lint and typecheck clean.
+- No new secrets, no committed `.env`, no unreviewed destructive migration.
+- Docs updated if behavior or contracts changed.
+- gstack review and QA completed; remaining risks listed.
+
+## 10. Never do
+
+- Run agent-generated code on the host machine (only inside the sandbox).
+- Mount host directories into sandbox containers or give them network access.
+- Let an LLM decide a gate result, an approval, or a permission.
+- Bypass the state machine, edit gate results, or write directly to `engine.*` tables from the API service.
+- Add dependencies without stating why; pin versions.
+- Rewrite the landing page. Only change what `docs/TASKS.md` T2.6 describes.
