@@ -55,6 +55,10 @@ export class AdminService {
       throw new AppError('User not found', 404)
     }
 
+    if (user.role === 'ADMIN') {
+      throw new AppError('Cannot modify status of an administrator account', 400)
+    }
+
     await prisma.user.update({
       where: { id: userId },
       data: { isApproved: true },
@@ -73,6 +77,10 @@ export class AdminService {
 
     if (!user) {
       throw new AppError('User not found', 404)
+    }
+
+    if (user.role === 'ADMIN') {
+      throw new AppError('Cannot modify status of an administrator account', 400)
     }
 
     await prisma.user.update({

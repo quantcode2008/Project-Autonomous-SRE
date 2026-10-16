@@ -61,7 +61,6 @@ export class ItemService {
    * Returns null if item does not exist or belongs to another user.
    */
   async updateItem(userId: string, id: string, input: UpdateItemInput) {
-    // Verify ownership first
     const existing = await prisma.item.findFirst({
       where: { id, userId },
     })

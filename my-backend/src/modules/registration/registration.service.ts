@@ -79,8 +79,8 @@ export class RegistrationService {
       })
     }
 
-    // Generate 6-digit numeric OTP
-    const otp = Math.floor(100000 + Math.random() * 900000).toString()
+    // Generate cryptographically secure 6-digit numeric OTP
+    const otp = crypto.randomInt(100000, 1000000).toString()
 
     // Store in Verification table with 10-minute validity
     await prisma.verification.deleteMany({
@@ -124,12 +124,26 @@ export class RegistrationService {
       orderBy: { createdAt: 'desc' },
     })
 
-    if (!record || record.value !== input.otp) {
+    if (!record) {
       throw new AppError('Invalid verification code. Please check and try again.', 400)
     }
 
     if (new Date() > record.expiresAt) {
+      await prisma.verification.deleteMany({
+        where: { identifier: input.email },
+      })
       throw new AppError('Verification code has expired. Please request a new code.', 400)
+    }
+
+    // Constant-time comparison to prevent timing attacks
+    const storedBuf = Buffer.from(record.value)
+    const inputBuf = Buffer.from(input.otp)
+    const matches =
+      storedBuf.length === inputBuf.length &&
+      crypto.timingSafeEqual(storedBuf, inputBuf)
+
+    if (!matches) {
+      throw new AppError('Invalid verification code. Please check and try again.', 400)
     }
 
     // Mark user verified
