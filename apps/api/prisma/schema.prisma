@@ -1,0 +1,154 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum RepoProvider {
+  LOCAL
+  GITHUB
+}
+
+enum ProjectKind {
+  DEMO
+  CUSTOM
+}
+
+model User {
+  id                      String    @id
+  name                    String
+  email                   String    @unique
+  emailVerified           Boolean   @default(false)
+  image                   String?
+  role                    Role      @default(USER)
+  disabled                Boolean   @default(false)
+  dailyInvestigationQuota Int       @default(5)
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+  sessions                Session[]
+  accounts                Account[]
+  projects                Project[]
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  password              String?
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+}
+
+model Project {
+  id         String          @id @default(cuid())
+  ownerId    String
+  owner      User            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  name       String
+  slug       String
+  kind       ProjectKind     @default(CUSTOM)
+  language   String          @default("python")
+  settings   Json
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+  deletedAt  DateTime?
+  repo       RepoConnection?
+  ingestKeys IngestKey[]
+
+  @@unique([ownerId, slug])
+  @@index([ownerId, deletedAt])
+}
+
+model RepoConnection {
+  id            String       @id @default(cuid())
+  projectId     String       @unique
+  project       Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  provider      RepoProvider
+  location      String
+  defaultBranch String       @default("main")
+  tokenEnc      String?
+  tokenLast4    String?
+  verifiedAt    DateTime?
+  lastError     String?
+  updatedAt     DateTime     @updatedAt
+}
+
+model IngestKey {
+  id         String    @id @default(cuid())
+  projectId  String
+  project    Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  name       String
+  prefix     String
+  hash       String
+  createdAt  DateTime  @default(now())
+  lastUsedAt DateTime?
+  revokedAt  DateTime?
+
+  @@index([projectId])
+  @@index([prefix])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String?
+  action     String
+  targetType String?
+  targetId   String?
+  projectId  String?
+  metadata   Json?
+  ip         String?
+  createdAt  DateTime @default(now())
+
+  @@index([actorId, createdAt])
+  @@index([projectId, createdAt])
+  @@index([action, createdAt])
+}
+
+model SystemFlag {
+  key       String   @id
+  value     Json
+  updatedBy String?
+  updatedAt DateTime @updatedAt
+}

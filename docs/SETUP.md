@@ -7,7 +7,7 @@ Version 1.0 · 2026-10-16. Local development only (Windows PowerShell commands s
 | Tool | Why | Check |
 |---|---|---|
 | Node.js LTS | web, api | `node -v` |
-| Python 3.12 | engine, demo service | `python --version` |
+| Python 3.12 (Strict) | engine, demo service (Do NOT use Python 3.14+) | `py -3.12 --version` (must be 3.12.x) |
 | Git | repo manager, demo repo | `git --version` |
 | Docker Desktop (WSL2 backend on Windows) | Postgres, Redis, sandbox | `docker version` and Docker Desktop shows "running" |
 | ripgrep (optional) | faster code search; the engine falls back to Python search without it | `rg --version` |
@@ -96,8 +96,9 @@ git clone <your repo> sentinelai   # or open the folder you created
 cd sentinelai
 copy .env.example .env             # then fill in the values above
 npm install
-python -m venv services/engine/.venv
+py -3.12 -m venv services/engine/.venv
 services/engine/.venv/Scripts/Activate.ps1
+# Verify: services/engine/.venv/Scripts/python --version (must print 3.12.x)
 pip install -r services/engine/requirements.txt
 npm run infra:up
 npm run db:migrate                 # prisma migrate + alembic upgrade (created in T0.x/T1.2/T3.1)

@@ -50,7 +50,7 @@ Local development build (hosting and deployment are intentionally deferred). Bui
 
 ## Quickstart
 
-See `docs/SETUP.md`. In short: install Node, Python 3.12, Git, and Docker Desktop; copy `.env.example` to `.env`; run `npm install`, `npm run infra:up`, then `npm run dev:all`.
+See `docs/SETUP.md`. Prerequisites: Node LTS, **Python 3.12 strictly required** (check with `py -3.12 --version`; do NOT use Python 3.14+), Git, and Docker Desktop (WSL2 backend). Copy `.env.example` to `.env`; run `npm install`, create the engine venv with `py -3.12 -m venv services/engine/.venv`, install requirements, run `npm run infra:up`, then `npm run dev:all`.
 
 ## Stack
 

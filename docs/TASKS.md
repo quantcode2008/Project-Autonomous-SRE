@@ -8,14 +8,14 @@ Hosting, domain, CI/CD, and production deployment are **out of scope** (see the 
 
 ## Phase 0: Workspace and tooling
 
-- [ ] **T0.1** Create the monorepo layout from `AGENTS.md` section 6 with npm workspaces and root scripts (`dev:*`, `test`, `lint`, `infra:*`). *Accept:* `npm install` succeeds; `npm run lint` runs (even if empty).
-- [ ] **T0.2** Move the existing frontend into `apps/web`. *Accept:* landing page at `/` looks and behaves exactly as before; no visual change.
-- [ ] **T0.3** `docker-compose.yml` with Postgres 16 and Redis 7 (volumes, healthchecks) and `infra/postgres/init.sql` creating schemas `platform` and `engine`. *Accept:* `npm run infra:up` then both services report healthy; both schemas exist.
-- [ ] **T0.4** `.env.example` covering all variables in `SETUP.md`; env validation helpers in api and engine. *Accept:* missing or invalid variable stops startup with a clear message.
-- [ ] **T0.5** `packages/shared` scaffold (Zod schemas, enums for statuses/severity/roles). *Accept:* imported by web and api builds.
-- [ ] **T0.6** Engine scaffold: Python 3.12 venv instructions, pinned requirements, FastAPI app with `/health` and `/ready`, ruff, pytest. *Accept:* `npm run dev:engine` serves `/health` on 127.0.0.1:8000; one test passes.
-- [ ] **T0.7** Lint, format, typecheck configs (eslint, prettier, tsc strict, ruff). *Accept:* `npm run lint` passes on a clean tree.
-- [ ] **T0.8** `README.md` quickstart and `npm run dev:all`. *Accept:* a fresh clone follows the README to all processes running.
+- [x] **T0.1** Create the monorepo layout from `AGENTS.md` section 6 with npm workspaces and root scripts (`dev:*`, `test`, `lint`, `infra:*`). *Accept:* `npm install` succeeds; `npm run lint` runs (even if empty).
+- [x] **T0.2** Move the existing frontend into `apps/web`. *Accept:* landing page at `/` looks and behaves exactly as before; no visual change.
+- [x] **T0.3** `docker-compose.yml` with Postgres 16 and Redis 7 (volumes, healthchecks) and `infra/postgres/init.sql` creating schemas `platform` and `engine`. *Accept:* `npm run infra:up` then both services report healthy; both schemas exist.
+- [x] **T0.4** `.env.example` covering all variables in `SETUP.md`; env validation helpers in api and engine. *Accept:* missing or invalid variable stops startup with a clear message.
+- [x] **T0.5** `packages/shared` scaffold (Zod schemas, enums for statuses/severity/roles). *Accept:* imported by web and api builds.
+- [x] **T0.6** Engine scaffold: Python 3.12 venv instructions, pinned requirements, FastAPI app with `/health` and `/ready`, ruff, pytest. *Accept:* `npm run dev:engine` serves `/health` on 127.0.0.1:8000; one test passes.
+- [x] **T0.7** Lint, format, typecheck configs (eslint, prettier, tsc strict, ruff). *Accept:* `npm run lint` passes on a clean tree.
+- [x] **T0.8** `README.md` quickstart and `npm run dev:all`. *Accept:* a fresh clone follows the README to all processes running.
 
 **Exit:** all infrastructure and four processes start; landing unchanged.
 
@@ -23,19 +23,19 @@ Hosting, domain, CI/CD, and production deployment are **out of scope** (see the 
 
 ## Phase 1: Platform API, auth, projects
 
-- [ ] **T1.1** Express skeleton: helmet, CORS (WEB_ORIGIN, credentials), request ID, pino logging, Zod `validate` middleware, error handler (format in `API_CONTRACT.md`), rate-limit middleware, `/health`, `/ready`. *Accept:* unit tests for error format and validation.
-- [ ] **T1.2** Prisma schema per `DATA_MODEL.md` and first migration in schema `platform`. *Accept:* `prisma migrate dev` works; tables exist.
-- [ ] **T1.3** Better Auth integration (email/password, verification, reset, cookie sessions) using Better Auth's Express handler mounted before `express.json()`; console mailer prints links in dev. *Accept:* sign up, verify via console link, sign in, sign out, reset password all work against the running API.
-- [ ] **T1.4** Roles, disabled flag, `requireAuth`, `requireRole`; disabled users are blocked at sign-in and on every request. *Accept:* tests for 401, 403, disabled user with an active session.
-- [ ] **T1.5** Audit log helper and table; record auth, project, key, flag, and admin actions. *Accept:* rows appear with redacted metadata.
-- [ ] **T1.6** Projects CRUD with ownership scoping and settings schema validation; unknown or unowned returns 404. *Accept:* cross-tenant tests pass.
-- [ ] **T1.7** Repo connection with encrypted token (AES-256-GCM), allowlisted repo locations, and verify endpoint (via engine). *Accept:* token never returned; invalid URL rejected.
-- [ ] **T1.8** Ingest keys: create (shown once), list (prefix only), revoke; sync hash to engine. *Accept:* plaintext appears only in the create response; revoked key stops working at ingest (after T3.2).
-- [ ] **T1.9** Typed engine client (generated from engine OpenAPI via `npm run gen:engine-types`), internal token, timeouts, retries, error mapping, `X-Request-Id` propagation. *Accept:* contract test against a stub engine.
-- [ ] **T1.10** Kill switch and per-user quota plumbing (flag push to engine, usage read). *Accept:* admin toggle returns 503 `PAUSED` on `investigate`; quota exceeded returns 429.
-- [ ] **T1.11** Admin endpoints (users, role, disable, quota, audit logs, stats, flags) with last-admin protection. *Accept:* non-admin gets 403 everywhere.
-- [ ] **T1.12** `npm run seed:admin -- <email>` to promote an existing user to ADMIN. *Accept:* promoted user can call admin endpoints.
-- [ ] **T1.13** Test suite: auth failures, validation, ownership, roles, rate limits. *Accept:* `npm run test -w apps/api` green.
+- [x] **T1.1** Express skeleton: helmet, CORS (WEB_ORIGIN, credentials), request ID, pino logging, Zod `validate` middleware, error handler (format in `API_CONTRACT.md`), rate-limit middleware, `/health`, `/ready`. *Accept:* unit tests for error format and validation.
+- [x] **T1.2** Prisma schema per `DATA_MODEL.md` and first migration in schema `platform`. *Accept:* `prisma migrate dev` works; tables exist.
+- [x] **T1.3** Better Auth integration (email/password, verification, reset, cookie sessions) using Better Auth's Express handler mounted before `express.json()`; console mailer prints links in dev. *Accept:* sign up, verify via console link, sign in, sign out, reset password all work against the running API.
+- [x] **T1.4** Roles, disabled flag, `requireAuth`, `requireRole`; disabled users are blocked at sign-in and on every request. *Accept:* tests for 401, 403, disabled user with an active session.
+- [x] **T1.5** Audit log helper and table; record auth, project, key, flag, and admin actions. *Accept:* rows appear with redacted metadata.
+- [x] **T1.6** Projects CRUD with ownership scoping and settings schema validation; unknown or unowned returns 404. *Accept:* cross-tenant tests pass.
+- [x] **T1.7** Repo connection with encrypted token (AES-256-GCM), allowlisted repo locations, and verify endpoint (via engine). *Accept:* token never returned; invalid URL rejected.
+- [x] **T1.8** Ingest keys: create (shown once), list (prefix only), revoke; sync hash to engine. *Accept:* plaintext appears only in the create response; revoked key stops working at ingest (after T3.2).
+- [x] **T1.9** Typed engine client (generated from engine OpenAPI via `npm run gen:engine-types`), internal token, timeouts, retries, error mapping, `X-Request-Id` propagation. *Accept:* contract test against a stub engine.
+- [x] **T1.10** Kill switch and per-user quota plumbing (flag push to engine, usage read). *Accept:* admin toggle returns 503 `PAUSED` on `investigate`; quota exceeded returns 429.
+- [x] **T1.11** Admin endpoints (users, role, disable, quota, audit logs, stats, flags) with last-admin protection. *Accept:* non-admin gets 403 everywhere.
+- [x] **T1.12** `npm run seed:admin -- <email>` to promote an existing user to ADMIN. *Accept:* promoted user can call admin endpoints.
+- [x] **T1.13** Test suite: auth failures, validation, ownership, roles, rate limits. *Accept:* `npm run test -w apps/api` green.
 
 **Exit:** a user can sign up, sign in, create a project, connect a repo, and mint an ingest key through the API.
 
